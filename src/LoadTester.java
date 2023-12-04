@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,47 +20,44 @@ public class LoadTester {
 
         System.out.println("Arguments received targetUrl = " + targetUrl + " frequency = " + frequency);
 
-        ExecutorService executor = Executors.newFixedThreadPool(frequency);
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (int i = 0; i < frequency; i++) {
-            CompletableFuture<Void> primeCheck = CompletableFuture.runAsync(() -> {
-                long startTime = System.currentTimeMillis();
-                int responseCode = callPrimeCheck(targetUrl);
-                long endTime = System.currentTimeMillis();
-                long responseTime = endTime - startTime;
+        while (true) {
+            ExecutorService executor = Executors.newFixedThreadPool(frequency);
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+            for (int i = 0; i < frequency; i++) {
+                CompletableFuture<Void> primeCheck = CompletableFuture.runAsync(() -> {
+                    long startTime = System.currentTimeMillis();
+                    List<Integer> response = callPrimeCheck(targetUrl);
+                    long endTime = System.currentTimeMillis();
+                    long responseTime = endTime - startTime;
 
-                if (responseCode == 200) {
-                    successfulRequests++;
-                    totalResponseTime += responseTime;
-                } else {
-                    failedRequests++;
-                }
+                    if (response.get(0) == 200) {
+                        successfulRequests++;
+                        totalResponseTime += response.get(1);
+                    } else {
+                        failedRequests++;
+                    }
 
-//                System.out.println("Response Code: " + responseCode);
-//                System.out.println("Response Time: " + responseTime + "ms");
+                }, executor);
+                futures.add(primeCheck);
+            }
 
-            }, executor);
-            futures.add(primeCheck);
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+
+            try {
+                allOf.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+
+            executor.shutdown();
+            System.out.println("Failed requests: " + failedRequests);
+            System.out.println("Average response time: " + (totalResponseTime / (double) successfulRequests) + "ms");
         }
-
-        CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-
-        try {
-            allOf.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        executor.shutdown();
-//        System.out.println("Successful requests: " + successfulRequests);
-        System.out.println("Failed requests: " + failedRequests);
-        System.out.println("Average response time: " + (totalResponseTime / (double) successfulRequests) + "ms");
-
-
     }
 
-    private static int callPrimeCheck(String targetUrl) {
+    private static List<Integer> callPrimeCheck(String targetUrl) {
 
+        List<Integer> res = new ArrayList<>();
         try {
             URL url = new URL(targetUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -68,11 +67,22 @@ public class LoadTester {
 
             int statusCode = con.getResponseCode();
 
-            return statusCode;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String line;
+            StringBuilder response = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            String[] p = response.toString().split(" ");
+            res.add(statusCode);
+            res.add(Integer.parseInt(p[1]));
+            reader.close();
+
+            return res;
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
-        return 0;
+        return res;
     }
 }

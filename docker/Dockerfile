@@ -5,7 +5,7 @@ FROM openjdk:1.8
 WORKDIR /usr/src/app
 
 # Copy the Java executable JAR file into the container
-COPY ../LoadTester.jar .
+COPY ../classes/LoadTester.jar .
 
 ENV FREQUENCY 10
 ENV TARGET http://10.152.183.222:30000/primecheck
