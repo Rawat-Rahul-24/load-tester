@@ -58,7 +58,7 @@ public class LoadTester {
 
             executor.shutdown();
             System.out.println("Failed requests: " + failedRequests);
-            System.out.println("Average response time: " + (totalResponseTime / (double) successfulRequests) + "ms");
+            System.out.println("Average response time: " + (totalResponseTime / (double) successfulRequests) + " ms");
         }
     }
 
