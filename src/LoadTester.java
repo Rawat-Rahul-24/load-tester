@@ -62,8 +62,8 @@ public class LoadTester {
             URL url = new URL(targetUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
-            con.setConnectTimeout(1000);
-            con.setReadTimeout(1000);
+            con.setConnectTimeout(10000);
+            con.setReadTimeout(10000);
 
             int statusCode = con.getResponseCode();
 
