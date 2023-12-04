@@ -1,10 +1,9 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -15,8 +14,16 @@ public class LoadTester {
     public static long successfulRequests = 0, totalResponseTime = 0, failedRequests = 0;
 
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
-        String targetUrl = args[0];
-        int frequency = Integer.parseInt(args[1]);
+
+        Properties properties = new Properties();
+        try (InputStream input = LoadTester.class.getResourceAsStream("config/config.properties")) {
+            properties.load(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        String targetUrl = properties.getProperty("target");
+        int frequency = Integer.parseInt(properties.getProperty("frequency"));
 
         System.out.println("Arguments received targetUrl = " + targetUrl + " frequency = " + frequency);
 
