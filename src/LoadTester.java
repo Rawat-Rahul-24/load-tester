@@ -33,7 +33,9 @@ public class LoadTester {
             for (int i = 0; i < frequency; i++) {
                 CompletableFuture<Void> primeCheck = CompletableFuture.runAsync(() -> {
                     long startTime = System.currentTimeMillis();
+//                    System.out.println(startTime);
                     List<Integer> response = callPrimeCheck(targetUrl);
+//                    System.out.println("resposne received " + response);
                     long endTime = System.currentTimeMillis();
                     long responseTime = endTime - startTime;
 
@@ -87,7 +89,8 @@ public class LoadTester {
 
             return res;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Exception caught " + e.getMessage());
+            res.add(500);
         }
 
         return res;
