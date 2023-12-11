@@ -36,7 +36,7 @@ public class LoadTester {
                 CompletableFuture<Void> primeCheck = CompletableFuture.runAsync(() -> {
                     long startTime = System.currentTimeMillis();
                     Date time = new Date().from(Instant.now());
-                    System.out.println(time);
+//                    System.out.println(time);
                     List<Integer> response = callPrimeCheck(targetUrl);
 //                    System.out.println("resposne received " + response);
                     long endTime = System.currentTimeMillis();
