@@ -1,7 +1,9 @@
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -33,7 +35,8 @@ public class LoadTester {
             for (int i = 0; i < frequency; i++) {
                 CompletableFuture<Void> primeCheck = CompletableFuture.runAsync(() -> {
                     long startTime = System.currentTimeMillis();
-//                    System.out.println(startTime);
+                    Date time = new Date().from(Instant.now());
+                    System.out.println(time);
                     List<Integer> response = callPrimeCheck(targetUrl);
 //                    System.out.println("resposne received " + response);
                     long endTime = System.currentTimeMillis();
